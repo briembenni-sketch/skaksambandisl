@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skráning</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+      padding: 32px;
+      width: 100%;
+      max-width: 460px;
+    }
+    form { display: flex; flex-direction: column; gap: 16px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+    }
+    input {
+      padding: 12px 14px;
+      border: 1px solid #d0d0d8;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.18);
+    }
+    .row { display: flex; gap: 12px; }
+    .row .field { flex: 1; }
+    .hint {
+      font-size: 12px;
+      color: #888;
+    }
+    .error {
+      font-size: 12px;
+      color: #d33;
+      min-height: 14px;
+    }
+    button {
+      margin-top: 8px;
+      padding: 13px;
+      border: 0;
+      border-radius: 8px;
+      background: #667eea;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button:hover { background: #5566d6; }
+    .success {
+      text-align: center;
+      padding: 12px;
+      background: #e6f7ec;
+      color: #1f6f3d;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <form id="signupForm" novalidate>
+      <div class="field">
+        <label for="nafn">Nafn</label>
+        <input type="text" id="nafn" name="nafn" autocomplete="name" required />
+        <div class="error" id="err-nafn"></div>
+      </div>
+
+      <div class="field">
+        <label for="netfang">Netfang</label>
+        <input type="email" id="netfang" name="netfang" autocomplete="email" required />
+        <div class="error" id="err-netfang"></div>
+      </div>
+
+      <div class="field">
+        <label for="kennitala">Kennitala</label>
+        <input type="text" id="kennitala" name="kennitala" inputmode="numeric" maxlength="10" placeholder="DDMMÁÁNNNN" required />
+        <div class="error" id="err-kennitala"></div>
+      </div>
+
+      <div class="field">
+        <label for="reikningur">Reikningsnúmer</label>
+        <input type="text" id="reikningur" name="reikningur" inputmode="numeric" placeholder="HHHH-BB-NNNNNN" required />
+        <div class="hint">Höfuðbók-bók-númer (4-2-6 tölustafir)</div>
+        <div class="error" id="err-reikningur"></div>
+      </div>
+
+      <div class="field">
+        <label for="pin">4 stafa kóði</label>
+        <input type="password" id="pin" name="pin" inputmode="numeric" maxlength="4" required />
+        <div class="error" id="err-pin"></div>
+      </div>
+
+      <div class="field">
+        <label for="password">Lykilorð</label>
+        <input type="password" id="password" name="password" required />
+        <div class="hint">A.m.k. 6 stafir og ein tala</div>
+        <div class="error" id="err-password"></div>
+      </div>
+
+      <button type="submit">Skrá</button>
+      <div class="success" id="success">Skráning tókst!</div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("signupForm");
+
+    const setError = (id, msg) => {
+      document.getElementById("err-" + id).textContent = msg || "";
+    };
+
+    const validators = {
+      nafn: (v) => v.trim().length >= 2 ? "" : "Sláðu inn nafn.",
+      netfang: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? "" : "Ógilt netfang.",
+      kennitala: (v) => /^\d{10}$/.test(v.replace(/\D/g, "")) ? "" : "Kennitala þarf að vera 10 tölustafir.",
+      reikningur: (v) => /^\d{4}-?\d{2}-?\d{6}$/.test(v.replace(/\s/g, "")) ? "" : "Ógilt reikningsnúmer (HHHH-BB-NNNNNN).",
+      pin: (v) => /^\d{4}$/.test(v) ? "" : "Kóðinn þarf að vera 4 tölustafir.",
+      password: (v) => (v.length > 5 && /\d/.test(v)) ? "" : "Lykilorð þarf að vera lengra en 5 stafir og innihalda eina tölu.",
+    };
+
+    Object.keys(validators).forEach((id) => {
+      const el = document.getElementById(id);
+      el.addEventListener("blur", () => setError(id, validators[id](el.value)));
+      el.addEventListener("input", () => {
+        if (document.getElementById("err-" + id).textContent) {
+          setError(id, validators[id](el.value));
+        }
+      });
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      let ok = true;
+      Object.keys(validators).forEach((id) => {
+        const msg = validators[id](document.getElementById(id).value);
+        setError(id, msg);
+        if (msg) ok = false;
+      });
+      if (ok) {
+        document.getElementById("success").style.display = "block";
+        form.reset();
+      }
+    });
+  </script>
+</body>
+</html>
