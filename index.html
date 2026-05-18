@@ -112,6 +112,8 @@
   </div>
 
   <script>
+    const FORMSPREE_ENDPOINT = "https://formspree.io/f/REPLACE_WITH_YOUR_ID";
+
     const form = document.getElementById("signupForm");
 
     const setError = (id, msg) => {
@@ -151,17 +153,16 @@
       const btn = form.querySelector("button[type=submit]");
       btn.disabled = true;
       try {
-        const res = await fetch("/api/submissions", {
+        const res = await fetch(FORMSPREE_ENDPOINT, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
           body: JSON.stringify(payload),
         });
-        const data = await res.json();
-        if (data.ok) {
+        if (res.ok) {
           document.getElementById("success").style.display = "block";
           form.reset();
         } else {
-          (data.fields || []).forEach((f) => setError(f, "Ógilt gildi."));
+          alert("Sending mistókst. Reyndu aftur.");
         }
       } catch {
         alert("Tenging mistókst. Reyndu aftur.");
