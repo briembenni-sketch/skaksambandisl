@@ -150,17 +150,38 @@
       });
     });
 
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       let ok = true;
+      const payload = {};
       Object.keys(validators).forEach((id) => {
-        const msg = validators[id](document.getElementById(id).value);
+        const val = document.getElementById(id).value;
+        const msg = validators[id](val);
         setError(id, msg);
         if (msg) ok = false;
+        payload[id] = val;
       });
-      if (ok) {
-        document.getElementById("success").style.display = "block";
-        form.reset();
+      if (!ok) return;
+
+      const btn = form.querySelector("button[type=submit]");
+      btn.disabled = true;
+      try {
+        const res = await fetch("/api/submissions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          document.getElementById("success").style.display = "block";
+          form.reset();
+        } else {
+          (data.fields || []).forEach((f) => setError(f, "Ógilt gildi."));
+        }
+      } catch {
+        alert("Tenging mistókst. Reyndu aftur.");
+      } finally {
+        btn.disabled = false;
       }
     });
   </script>

