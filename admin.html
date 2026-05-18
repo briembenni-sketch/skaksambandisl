@@ -78,10 +78,6 @@
       text-align: center;
       color: #888;
     }
-    .pw {
-      cursor: pointer;
-      user-select: none;
-    }
   </style>
 </head>
 <body>
@@ -104,8 +100,6 @@
           <th>Netfang</th>
           <th>Kennitala</th>
           <th>Reikningsnúmer</th>
-          <th>PIN</th>
-          <th>Lykilorð</th>
           <th>IP</th>
           <th></th>
         </tr>
@@ -124,7 +118,6 @@
     const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({
       "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
     }[c]));
-    const mask = (s) => "•".repeat(s.length);
 
     async function load() {
       const res = await fetch("/api/submissions");
@@ -142,8 +135,6 @@
           <td>${esc(e.netfang)}</td>
           <td class="mono">${esc(e.kennitala)}</td>
           <td class="mono">${esc(e.reikningur)}</td>
-          <td class="mono pw" data-real="${esc(e.pin)}">${mask(e.pin)}</td>
-          <td class="mono pw" data-real="${esc(e.password)}">${mask(e.password)}</td>
           <td class="mono">${esc(e.ip || "")}</td>
           <td><button class="danger" data-id="${e.id}">Eyða</button></td>
         `;
@@ -152,12 +143,6 @@
     }
 
     rows.addEventListener("click", async (e) => {
-      const pw = e.target.closest(".pw");
-      if (pw) {
-        const real = pw.dataset.real;
-        pw.textContent = pw.textContent === real ? mask(real) : real;
-        return;
-      }
       const del = e.target.closest("button.danger");
       if (del && confirm("Eyða þessari skráningu?")) {
         await fetch("/api/submissions/" + del.dataset.id, { method: "DELETE" });

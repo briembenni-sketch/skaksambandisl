@@ -39,8 +39,6 @@ const validate = (b) => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s(b.netfang))) errs.push("netfang");
   if (!/^\d{10}$/.test(s(b.kennitala).replace(/\D/g, ""))) errs.push("kennitala");
   if (!/^\d{4}-?\d{2}-?\d{6}$/.test(s(b.reikningur).replace(/\s/g, ""))) errs.push("reikningur");
-  if (!/^\d{4}$/.test(s(b.pin))) errs.push("pin");
-  if (!(s(b.password).length > 5 && /\d/.test(s(b.password)))) errs.push("password");
   return errs;
 };
 
@@ -56,8 +54,6 @@ app.post("/api/submissions", async (req, res) => {
     netfang: req.body.netfang.trim(),
     kennitala: req.body.kennitala.replace(/\D/g, ""),
     reikningur: req.body.reikningur.replace(/\s/g, ""),
-    pin: req.body.pin,
-    password: req.body.password,
   };
   const list = await readAll();
   list.push(entry);

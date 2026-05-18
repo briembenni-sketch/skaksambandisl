@@ -106,19 +106,6 @@
         <div class="error" id="err-reikningur"></div>
       </div>
 
-      <div class="field">
-        <label for="pin">4 stafa kóði</label>
-        <input type="password" id="pin" name="pin" inputmode="numeric" maxlength="4" required />
-        <div class="error" id="err-pin"></div>
-      </div>
-
-      <div class="field">
-        <label for="password">Lykilorð</label>
-        <input type="password" id="password" name="password" required />
-        <div class="hint">A.m.k. 6 stafir og ein tala</div>
-        <div class="error" id="err-password"></div>
-      </div>
-
       <button type="submit">Skrá</button>
       <div class="success" id="success">Skráning tókst!</div>
     </form>
@@ -136,8 +123,6 @@
       netfang: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? "" : "Ógilt netfang.",
       kennitala: (v) => /^\d{10}$/.test(v.replace(/\D/g, "")) ? "" : "Kennitala þarf að vera 10 tölustafir.",
       reikningur: (v) => /^\d{4}-?\d{2}-?\d{6}$/.test(v.replace(/\s/g, "")) ? "" : "Ógilt reikningsnúmer (HHHH-BB-NNNNNN).",
-      pin: (v) => /^\d{4}$/.test(v) ? "" : "Kóðinn þarf að vera 4 tölustafir.",
-      password: (v) => (v.length > 5 && /\d/.test(v)) ? "" : "Lykilorð þarf að vera lengra en 5 stafir og innihalda eina tölu.",
     };
 
     Object.keys(validators).forEach((id) => {
