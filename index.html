@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="is">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Skráning</title>
+  <title>My Wellness Dashboard</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -11,165 +11,355 @@
       min-height: 100vh;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #1f2330;
+      padding: 32px 16px;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    header {
+      color: #fff;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    header h1 {
+      margin: 0 0 6px;
+      font-size: 32px;
+      letter-spacing: -0.5px;
+    }
+    header p {
+      margin: 0;
+      opacity: 0.85;
+      font-size: 15px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .stat {
+      background: rgba(255,255,255,0.95);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
+    .stat .label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #6b6f80;
+      font-weight: 600;
+    }
+    .stat .value {
+      font-size: 26px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+    .stat .sub {
+      font-size: 12px;
+      color: #8a8fa3;
+      margin-top: 2px;
+    }
+    .nav {
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    .card {
-      background: #fff;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.95);
+      padding: 12px 16px;
       border-radius: 12px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-      padding: 32px;
-      width: 100%;
-      max-width: 460px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      margin-bottom: 14px;
     }
-    form { display: flex; flex-direction: column; gap: 16px; }
-    .field { display: flex; flex-direction: column; gap: 6px; }
-    label {
-      font-size: 14px;
-      font-weight: 600;
-      color: #333;
-    }
-    input {
-      padding: 12px 14px;
-      border: 1px solid #d0d0d8;
-      border-radius: 8px;
-      font-size: 15px;
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    input:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.18);
-    }
-    .row { display: flex; gap: 12px; }
-    .row .field { flex: 1; }
-    .hint {
-      font-size: 12px;
-      color: #888;
-    }
-    .error {
-      font-size: 12px;
-      color: #d33;
-      min-height: 14px;
-    }
-    button {
-      margin-top: 8px;
-      padding: 13px;
+    .nav button {
       border: 0;
+      background: #eef0fb;
+      color: #4c52a8;
+      padding: 8px 14px;
       border-radius: 8px;
-      background: #667eea;
-      color: #fff;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       transition: background 0.15s;
     }
-    button:hover { background: #5566d6; }
-    .success {
+    .nav button:hover { background: #dfe3f8; }
+    .nav .week-label {
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .week-range {
+      font-size: 12px;
+      color: #8a8fa3;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .week {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 14px 10px;
       text-align: center;
-      padding: 12px;
-      background: #e6f7ec;
-      color: #1f6f3d;
-      border-radius: 8px;
-      font-size: 14px;
-      display: none;
+      border-bottom: 1px solid #eef0f5;
+    }
+    th {
+      background: #f7f8fc;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #6b6f80;
+      font-weight: 600;
+    }
+    th.day-col, td.day-col {
+      text-align: left;
+      padding-left: 18px;
+      width: 28%;
+    }
+    .day-name {
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .day-date {
+      font-size: 12px;
+      color: #8a8fa3;
+    }
+    tr.today td { background: #fff8e1; }
+    tr.today .day-name::after {
+      content: "Today";
+      margin-left: 8px;
+      background: #ffb300;
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      vertical-align: middle;
+      letter-spacing: 0.4px;
+    }
+    .check {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 2px solid #d8dbe8;
+      background: #fff;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      color: transparent;
+    }
+    .check:hover { border-color: #b3b9d4; }
+    .check.gym.on {
+      background: #e3f3ff;
+      border-color: #4aa8ff;
+      color: #1976d2;
+    }
+    .check.food.on {
+      background: #e8f9ec;
+      border-color: #4caf50;
+      color: #2e7d32;
+    }
+    .check.smile.on {
+      background: #fff4d6;
+      border-color: #ffb300;
+      color: #e6a200;
+    }
+    .check::before {
+      content: attr(data-icon-off);
+      opacity: 0.35;
+      color: #9aa0b4;
+    }
+    .check.on::before { content: attr(data-icon-on); opacity: 1; color: inherit; }
+    footer {
+      text-align: center;
+      color: rgba(255,255,255,0.75);
+      font-size: 12px;
+      margin-top: 24px;
+    }
+    @media (max-width: 600px) {
+      header h1 { font-size: 26px; }
+      .stats { grid-template-columns: 1fr; }
+      th, td { padding: 10px 4px; font-size: 13px; }
+      th.day-col, td.day-col { padding-left: 10px; width: 36%; }
+      .check { width: 34px; height: 34px; font-size: 18px; }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <form id="signupForm" novalidate>
-      <div class="field">
-        <label for="nafn">Nafn</label>
-        <input type="text" id="nafn" name="nafn" autocomplete="name" required />
-        <div class="error" id="err-nafn"></div>
-      </div>
+  <div class="wrap">
+    <header>
+      <h1>My Wellness Dashboard</h1>
+      <p>Week by week — gym, food, and a smile a day.</p>
+    </header>
 
-      <div class="field">
-        <label for="netfang">Netfang</label>
-        <input type="email" id="netfang" name="netfang" autocomplete="email" required />
-        <div class="error" id="err-netfang"></div>
+    <div class="stats">
+      <div class="stat">
+        <div class="label">Gym this week</div>
+        <div class="value" id="stat-gym">0 / 7</div>
+        <div class="sub">days trained</div>
       </div>
-
-      <div class="field">
-        <label for="kennitala">Kennitala</label>
-        <input type="text" id="kennitala" name="kennitala" inputmode="numeric" maxlength="10" placeholder="DDMMÁÁNNNN" required />
-        <div class="error" id="err-kennitala"></div>
+      <div class="stat">
+        <div class="label">Eating well</div>
+        <div class="value" id="stat-food">0 / 7</div>
+        <div class="sub">healthy days</div>
       </div>
-
-      <div class="field">
-        <label for="reikningur">Reikningsnúmer</label>
-        <input type="text" id="reikningur" name="reikningur" inputmode="numeric" placeholder="HHHH-BB-NNNNNN" required />
-        <div class="hint">Höfuðbók-bók-númer (4-2-6 tölustafir)</div>
-        <div class="error" id="err-reikningur"></div>
+      <div class="stat">
+        <div class="label">Smiles</div>
+        <div class="value" id="stat-smile">0 / 7</div>
+        <div class="sub">happy check-ins</div>
       </div>
+    </div>
 
-      <button type="submit">Skrá</button>
-      <div class="success" id="success">Skráning tókst!</div>
-    </form>
+    <div class="nav">
+      <button id="prev">← Previous</button>
+      <div style="text-align:center">
+        <div class="week-label" id="week-label">This week</div>
+        <div class="week-range" id="week-range"></div>
+      </div>
+      <button id="next">Next →</button>
+    </div>
+
+    <div class="week">
+      <table>
+        <thead>
+          <tr>
+            <th class="day-col">Day</th>
+            <th>🏋️ Gym</th>
+            <th>🥗 Ate well</th>
+            <th>😊 Smile</th>
+          </tr>
+        </thead>
+        <tbody id="days"></tbody>
+      </table>
+    </div>
+
+    <footer>Saved locally on this device.</footer>
   </div>
 
   <script>
-    const FORMSPREE_ENDPOINT = "https://formspree.io/f/REPLACE_WITH_YOUR_ID";
+    const STORAGE_KEY = "wellness-dashboard-v1";
+    const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
-    const form = document.getElementById("signupForm");
+    const state = loadState();
+    let weekStart = mondayOf(new Date());
 
-    const setError = (id, msg) => {
-      document.getElementById("err-" + id).textContent = msg || "";
-    };
+    function loadState() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+      catch { return {}; }
+    }
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
 
-    const validators = {
-      nafn: (v) => v.trim().length >= 2 ? "" : "Sláðu inn nafn.",
-      netfang: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? "" : "Ógilt netfang.",
-      kennitala: (v) => /^\d{10}$/.test(v.replace(/\D/g, "")) ? "" : "Kennitala þarf að vera 10 tölustafir.",
-      reikningur: (v) => /^\d{4}-?\d{2}-?\d{6}$/.test(v.replace(/\s/g, "")) ? "" : "Ógilt reikningsnúmer (HHHH-BB-NNNNNN).",
-    };
+    function mondayOf(d) {
+      const date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      const day = date.getDay();
+      const diff = (day === 0 ? -6 : 1 - day);
+      date.setDate(date.getDate() + diff);
+      return date;
+    }
+    function addDays(d, n) {
+      const x = new Date(d);
+      x.setDate(x.getDate() + n);
+      return x;
+    }
+    function dateKey(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+    function sameDay(a, b) {
+      return a.getFullYear() === b.getFullYear()
+        && a.getMonth() === b.getMonth()
+        && a.getDate() === b.getDate();
+    }
+    function fmtShort(d) {
+      return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    }
 
-    Object.keys(validators).forEach((id) => {
-      const el = document.getElementById(id);
-      el.addEventListener("blur", () => setError(id, validators[id](el.value)));
-      el.addEventListener("input", () => {
-        if (document.getElementById("err-" + id).textContent) {
-          setError(id, validators[id](el.value));
-        }
-      });
-    });
+    function getDay(key) {
+      return state[key] || { gym: false, food: false, smile: false };
+    }
+    function setDay(key, value) {
+      state[key] = value;
+      saveState();
+    }
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      let ok = true;
-      const payload = {};
-      Object.keys(validators).forEach((id) => {
-        const val = document.getElementById(id).value;
-        const msg = validators[id](val);
-        setError(id, msg);
-        if (msg) ok = false;
-        payload[id] = val;
-      });
-      if (!ok) return;
+    function render() {
+      const today = new Date();
+      const end = addDays(weekStart, 6);
 
-      const btn = form.querySelector("button[type=submit]");
-      btn.disabled = true;
-      try {
-        const res = await fetch(FORMSPREE_ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Accept": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        if (res.ok) {
-          document.getElementById("success").style.display = "block";
-          form.reset();
-        } else {
-          alert("Sending mistókst. Reyndu aftur.");
-        }
-      } catch {
-        alert("Tenging mistókst. Reyndu aftur.");
-      } finally {
-        btn.disabled = false;
+      const thisWeekStart = mondayOf(today);
+      const isThisWeek = sameDay(weekStart, thisWeekStart);
+      document.getElementById("week-label").textContent =
+        isThisWeek ? "This week"
+        : (weekStart < thisWeekStart ? "Past week" : "Upcoming week");
+      document.getElementById("week-range").textContent =
+        `${fmtShort(weekStart)} – ${fmtShort(end)}, ${end.getFullYear()}`;
+
+      const tbody = document.getElementById("days");
+      tbody.innerHTML = "";
+      let gym = 0, food = 0, smile = 0;
+
+      for (let i = 0; i < 7; i++) {
+        const d = addDays(weekStart, i);
+        const key = dateKey(d);
+        const data = getDay(key);
+        if (data.gym) gym++;
+        if (data.food) food++;
+        if (data.smile) smile++;
+
+        const tr = document.createElement("tr");
+        if (sameDay(d, today)) tr.className = "today";
+
+        tr.innerHTML = `
+          <td class="day-col">
+            <div class="day-name">${DAYS[i]}</div>
+            <div class="day-date">${fmtShort(d)}</div>
+          </td>
+          <td><button class="check gym ${data.gym ? "on" : ""}" data-key="${key}" data-field="gym" data-icon-off="🏋️" data-icon-on="✓" aria-label="Gym ${DAYS[i]}"></button></td>
+          <td><button class="check food ${data.food ? "on" : ""}" data-key="${key}" data-field="food" data-icon-off="🥗" data-icon-on="✓" aria-label="Ate well ${DAYS[i]}"></button></td>
+          <td><button class="check smile ${data.smile ? "on" : ""}" data-key="${key}" data-field="smile" data-icon-off="😊" data-icon-on="✓" aria-label="Smile ${DAYS[i]}"></button></td>
+        `;
+        tbody.appendChild(tr);
       }
+
+      document.getElementById("stat-gym").textContent = `${gym} / 7`;
+      document.getElementById("stat-food").textContent = `${food} / 7`;
+      document.getElementById("stat-smile").textContent = `${smile} / 7`;
+    }
+
+    document.getElementById("days").addEventListener("click", (e) => {
+      const btn = e.target.closest(".check");
+      if (!btn) return;
+      const key = btn.dataset.key;
+      const field = btn.dataset.field;
+      const data = getDay(key);
+      data[field] = !data[field];
+      setDay(key, data);
+      render();
     });
+
+    document.getElementById("prev").addEventListener("click", () => {
+      weekStart = addDays(weekStart, -7);
+      render();
+    });
+    document.getElementById("next").addEventListener("click", () => {
+      weekStart = addDays(weekStart, 7);
+      render();
+    });
+
+    render();
   </script>
 </body>
 </html>
